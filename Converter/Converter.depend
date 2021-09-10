@@ -1,0 +1,5 @@
+# depslib dependency file v1.0
+1631305891 source:c:\onedrive\cs\organizacion de computadoras\c\convertor-c\converter\main.c
+	<stdio.h>
+	<stdlib.h>
+

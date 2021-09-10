@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main()
+int main(int argc, char* argv[])
 {
-    printf("Hello world!\n");
+    printf("primer cadena de argv %s",argv[1]);
     return 0;
 }
