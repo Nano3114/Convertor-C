@@ -50,7 +50,23 @@ int main(int argc, char* argv[]){
 		if(*(value)<=9)
 			*(outcome)=*(value);
 		else
-			*(outcome)='A'-'B';
+			if(*(value)=='10')
+				*(outcome)='A';
+			else
+				if(*(value)=='11')
+					*(outcome)='B';
+				else
+					if(*(value)=='12')
+						*(outcome)='C';
+					else
+						if(*(value)=='13')
+							*(outcome)='D';
+						else
+							if(*(value)=='14')
+								*(outcome)='E';
+							else
+								if(*(value)=='15')
+									*(outcome)='F';
 	}
 /*
 
