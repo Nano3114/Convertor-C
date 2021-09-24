@@ -13,7 +13,7 @@ https://www.youtube.com/watch?v=8Ib7nwc33uA&list=LL&index=1
 
 	void convertNumber(int*,int*,char*,int*,int*);
 	void convertToBase(int*,int*,double*,char*);
-	void convertFractionInBaseDiez(int*,int*,char*,int*);
+	void convertFractionInBaseDiez(int*,int*,char*,double*);
 	void convertFractionFromBaseDiez(int*,int*,double*,char*);
 
 /*
@@ -250,18 +250,21 @@ void main(int argc, char* argv[])
 				num_fraccion[size]='\0';
 				if(*(srcBase)==10){
 					int valorEnteroDeFraccion=atoi(&(num_fraccion[0]));
-
-					double valorDeFraccion=valorEnteroDeFraccion*pow(10,-1*cantDigFraccion);
-					printf("\n le estoy pasando una fraccion que es %d :",valorDeFraccion);
+					double valorDeFraccion=(double)valorEnteroDeFraccion;
+					while(cantDigFraccion!=0){
+						valorDeFraccion=valorDeFraccion/10;
+						cantDigFraccion--;
+					}
+					printf("\n le estoy pasando una fraccion que es %f :",valorDeFraccion);
 
 					char* outcome=&(salida[0]);
 					convertFractionFromBaseDiez(srcBase,dstBase,&valorDeFraccion,outcome);
-					printf("\n De base %d convertido a base %d es .%s",*srcBase,*dstBase,outcome);
+					printf("\n De base %d convertido a base %d es .%s\n",*srcBase,*dstBase,outcome);
 				}
 				else{
-					int* outcome=0;
-					convertFractionInBaseDiez(srcBase,dstBase,&(num_fraccion[0]),outcome);
-					printf("\n De base %d convertido a base %d es .%i",*srcBase,*dstBase,*outcome);
+					double outcome=0;
+					convertFractionInBaseDiez(srcBase,dstBase,&(num_fraccion[0]),&outcome);
+					printf("\n De base %d convertido a base %d es .%f",*srcBase,*dstBase,outcome);
 
 				}
 
@@ -271,7 +274,7 @@ void main(int argc, char* argv[])
 			printf("\nERROR_FAILURE");
 	}
 
-	void convertFractionInBaseDiez(int* srcBase,int* dstBase,char* fraction,int* outcome){
+	void convertFractionInBaseDiez(int* srcBase,int* dstBase,char* fraction,double* outcome){
 		int valor;
 		if(*fraction!='\n'){
 			valor=valorBase10(*fraction);//valor que respresenta *fraction en ese punto
@@ -289,9 +292,10 @@ void main(int argc, char* argv[])
 		double valor;
 		if(*fraction!='\0'){
 			int i=0;
-			while(i<4){
+			while(i<6){
 				*(fraction)=modf((*fraction)*(*dstBase),&valor);
 				convertToBase(srcBase,dstBase,&valor,outcome);
+				printf("\n lo que voy a meter es %c",*(outcome));
 				outcome++;
 				i++;
 			}
@@ -301,7 +305,7 @@ void main(int argc, char* argv[])
 
 	void convertToBase(int* srcBase,int* dstBase,double* value,char* outcome){
 		if(*(value)<=9)
-			*(outcome)=*(value);
+			*(outcome)=*(value)+'0';
 		else
 			if(*(value)==10)
 				*(outcome)='A';
