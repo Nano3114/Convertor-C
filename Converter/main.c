@@ -13,8 +13,8 @@ https://www.youtube.com/watch?v=8Ib7nwc33uA&list=LL&index=1
 
 	void convertNumber(int*,int*,char*,int*,int*);
 	void convertToBase(int*,int*,double*,char*);
-	void convertFractionInBaseDiez(int*,int*,char*,double*);
-	void convertFractionFromBaseDiez(int*,int*,double*,char*);
+	void convertFractionInBaseDiez(int*,int*,char*,float*,int*);
+	void convertFractionFromBaseDiez(int*,int*,double*,char*,int*);
 
 /*
     Invierte una cadena de caracteres
@@ -195,7 +195,6 @@ void main(int argc, char* argv[])
         if (num==NULL || dstBase<2 || dstBase>16 || srcBase<2 || srcBase>16 || strlen(num)>10){
             printf("\nERROR_FAILURE");
         } else{
-				printf("voy a mostrar la conversion\n");
 				convertNumber(&srcBase,&dstBase,num,&help,&show);
 				/**
             //Transformacion a decimal
@@ -214,12 +213,20 @@ void main(int argc, char* argv[])
     }
 
 }
-
+	/**
+	*Convierte el numero num a la base correspondiente
+	*srcBase es un puntero a un valor entero que indica la base origen
+	*dstBase es un puntero a un valor entero que indica la base destino.
+	*num es un puntero al lugar en memoria del primer elemento del arreglo donde se guarda el numero a convertir
+	*show es un puntero a un valor que indica si mostrar o no un breve resuemen de lo que se hace en la funcion
+	*/
 	void convertNumber(int *srcBase,int* dstBase,char* num,int* help,int* show){
 		char num_entero[10];
 		char salida[6];
 		char num_fraccion[6];
 		int size=0,cantDigFraccion=0   ,valorEntero=0;
+
+		printf("El valor ingresado %d en base %s \n",*(srcBase),num);
 
 		while(size<Dig_Entero && *(num+size)!='.' && *(num+size)!='\0'){
 			num_entero[size]=*(num+size);
@@ -229,6 +236,7 @@ void main(int argc, char* argv[])
 		num_entero[size]='\0';
 
 		if(*(num+size)=='\0'	|| *(num+size)=='.'){
+			//Empiezo convirtiendo la parte entera independientemente de que halla o no parte fracionaria
 			if(*(srcBase)==10){
 				valorEntero=atoi(&(num_entero[0]));
             char* numConvertido = decimalABase(dstBase,&valorEntero,show);
@@ -236,7 +244,6 @@ void main(int argc, char* argv[])
 			}
 			else{
 				 //Transformacion a decimal
-            printf("Numero introducido %s \n",num);
             int* test = baseADecimal(srcBase,&(num_entero[0]),show);
 				printf("\nEn base %d convertido a base %d es %i",*srcBase,*dstBase,*test);
 			}
@@ -247,7 +254,7 @@ void main(int argc, char* argv[])
 					num_fraccion[cantDigFraccion]=*(num+size);
 					size++;cantDigFraccion++;
 				}
-				num_fraccion[size]='\0';
+				num_fraccion[cantDigFraccion]='\0';
 				if(*(srcBase)==10){
 					int valorEnteroDeFraccion=atoi(&(num_fraccion[0]));
 					double valorDeFraccion=(double)valorEnteroDeFraccion;
@@ -255,15 +262,15 @@ void main(int argc, char* argv[])
 						valorDeFraccion=valorDeFraccion/10;
 						cantDigFraccion--;
 					}
-					printf("\n le estoy pasando una fraccion que es %f :",valorDeFraccion);
-
 					char* outcome=&(salida[0]);
-					convertFractionFromBaseDiez(srcBase,dstBase,&valorDeFraccion,outcome);
+					convertFractionFromBaseDiez(srcBase,dstBase,&valorDeFraccion,outcome,show);
 					printf("\n De base %d convertido a base %d es .%s\n",*srcBase,*dstBase,outcome);
 				}
 				else{
-					double outcome=0;
-					convertFractionInBaseDiez(srcBase,dstBase,&(num_fraccion[0]),&outcome);
+					float outcome=0;
+					if(*show==1)
+						printf("\nConvierto la fraccion %s de base %i a base %i ,usando el metodo de division",num_fraccion,*srcBase,*dstBase);
+					convertFractionInBaseDiez(srcBase,dstBase,&(num_fraccion[0]),&outcome,show);
 					printf("\n De base %d convertido a base %d es .%f",*srcBase,*dstBase,outcome);
 
 				}
@@ -274,28 +281,53 @@ void main(int argc, char* argv[])
 			printf("\nERROR_FAILURE");
 	}
 
-	void convertFractionInBaseDiez(int* srcBase,int* dstBase,char* fraction,double* outcome){
+	/**
+	*	Convierte la parte fraccionaria de una base cualquiera[2-16] a la base 10.
+	*	srcBase es un puntero a un entero el cual es el valor de la base origen
+	*	dstBase es un puntero a un entero el cual es el valor de la base destino
+	*	*fraction es un puntero a un double ,que es la fraccion a convertir a base
+	*  outcome es un puntero al primer lugar de un arreglo de characteres
+	*/
+	void convertFractionInBaseDiez(int* srcBase,int* dstBase,char* fraction,float* outcome,int* show ){
 		int valor;
+		float aux=*outcome;
 		if(*fraction!='\n'){
 			valor=valorBase10(*fraction);//valor que respresenta *fraction en ese punto
-			if(*(fraction+1)!='\0'){
-				*(outcome)=(*(outcome)+valor)/(*(srcBase));
+			if(*(fraction+1)=='\0'){
+				*outcome=(aux+valor)/(*(srcBase));
+				if(*show==1)
+					printf("\n(( %f + %i)/%d) = %f",aux,valor,*srcBase,*outcome);
 			}
 			else{
-				convertFractionInBaseDiez(srcBase,dstBase,(fraction+1),outcome);
-				*(outcome)=(*(outcome)+*(fraction))/(*(srcBase));
+				convertFractionInBaseDiez(srcBase,dstBase,(fraction+1),outcome,show);
+				*(outcome)=((*outcome)+(valor))/(*srcBase);
+				if(*show==1)
+					printf("\n((%f + %i)/%d) = %f",aux,valor,*srcBase,*outcome);
 			}
 		}
 	}
 
-	void convertFractionFromBaseDiez(int* srcBase,int* dstBase,double* fraction,char* outcome){
+	/**
+	*Convierte la parte fraccionaria en base 10 a otra base entre [2,16] mediante
+	*srcBase es un puntero a un entero que es nro de la base.
+	*fraction es un puntero a un double ,que es la fraccion a convertir a base
+	*outcome es un puntero al primer lugar de un arreglo de characteres
+	*/
+	void convertFractionFromBaseDiez(int* srcBase,int* dstBase,double* fraction,char* outcome,int* show){
 		double valor;
+		double aux,fraccionAux;
+		if(*show==1)
+			printf("\nConvierto fraccion %s de base %d a base %d usando el metodo de multiplicacion :",fraction,*srcBase,*dstBase);
 		if(*fraction!='\0'){
 			int i=0;
+			fraccionAux=*fraction;
 			while(i<6){
-				*(fraction)=modf((*fraction)*(*dstBase),&valor);
+				if(*show==1)
+					printf("\n %f * %i = %d ==> d(i)",fraccionAux,*(dstBase),fraccionAux*(*dstBase));
+				fraccionAux=modf(fraccionAux*(*dstBase),&valor);
 				convertToBase(srcBase,dstBase,&valor,outcome);
-				printf("\n lo que voy a meter es %c",*(outcome));
+				if(*show==1)
+					printf(" = %c",*outcome );
 				outcome++;
 				i++;
 			}
@@ -303,6 +335,13 @@ void main(int argc, char* argv[])
 		}
 	}
 
+	/**
+	*convierte un valor numerico en base 10 entre el rango de (2-16) a el mismo valor representado en otra base
+	*src es un puntero a un entero que guarda el valor de la base 10
+	*dstBase es un puntero a un entero que guarda el valor de la base a convertir
+	*value es un puntero a un valor numerico(double) entre (2-16) en base 10
+	*outcome es puntero de char donde se guardara la conversion de value.
+	*/
 	void convertToBase(int* srcBase,int* dstBase,double* value,char* outcome){
 		if(*(value)<=9)
 			*(outcome)=*(value)+'0';
