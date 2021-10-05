@@ -8,6 +8,7 @@ https://www.youtube.com/watch?v=8Ib7nwc33uA&list=LL&index=1
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+
 #define Dig_Entero 10
 #define Dig_Fraccion 5
 
@@ -15,7 +16,8 @@ https://www.youtube.com/watch?v=8Ib7nwc33uA&list=LL&index=1
 	void convertToBase(int*,int*,double*,char*);
 	void convertFractionInBaseDiez(int*,int*,char*,float*,int*);
 	void convertFractionFromBaseDiez(int*,int*,double*,char*,int*);
-
+	void joinResult(char*  ,char* ,int* ,int* );
+	int esEntero(char);
 /*
     Invierte una cadena de caracteres
     ar puntero a cadena de caracteres
@@ -222,9 +224,9 @@ void main(int argc, char* argv[])
 	*/
 	void convertNumber(int *srcBase,int* dstBase,char* num,int* help,int* show){
 		char num_entero[10];
-		char salida[6];
+		char salida[16];
 		char num_fraccion[6];
-		int size=0,cantDigFraccion=0   ,valorEntero=0;
+		int size=0,cantDigFraccion=0   ,valorEntero=0 ,lim=0, isInt=1;
 
 		printf("El valor ingresado %d en base %s \n",*(srcBase),num);
 
@@ -240,13 +242,20 @@ void main(int argc, char* argv[])
 			if(*(srcBase)==10){
 				valorEntero=atoi(&(num_entero[0]));
             char* numConvertido = decimalABase(dstBase,&valorEntero,show);
-            printf("\nEn base %d convertido a base %d es %s",*srcBase,*dstBase,numConvertido);
+				joinResult(numConvertido,&salida[lim],&lim,&isInt);
+				isInt=0;
+            //printf("\nEn base %d convertido a base %d es %s",*srcBase,*dstBase,numConvertido);
 			}
 			else{
-				 //Transformacion a decimal
             int* test = baseADecimal(srcBase,&(num_entero[0]),show);
-				printf("\nEn base %d convertido a base %d es %i",*srcBase,*dstBase,*test);
+            printf("\nVoy a meter el %i al arreglo al arreglo",*(test));
+            char buffer2[10];
+            itoa(*test,buffer2,10);
+				joinResult(&buffer2[0],&(salida[lim]),&lim,&isInt);
+				isInt=0;
 			}
+
+			printf("\n lo que voy en salida es %s             ",salida);
 
 			if(*(num+size)=='.'){
 				size++;
@@ -262,20 +271,28 @@ void main(int argc, char* argv[])
 						valorDeFraccion=valorDeFraccion/10;
 						cantDigFraccion--;
 					}
-					char* outcome=&(salida[0]);
+					char* outcome=&(salida[lim]);
 					convertFractionFromBaseDiez(srcBase,dstBase,&valorDeFraccion,outcome,show);
-					printf("\n De base %d convertido a base %d es .%s\n",*srcBase,*dstBase,outcome);
+					joinResult(outcome,&(salida[lim]),&lim,&isInt);
 				}
 				else{
 					float outcome=0;
 					if(*show==1)
 						printf("\nConvierto la fraccion %s de base %i a base %i ,usando el metodo de division",num_fraccion,*srcBase,*dstBase);
 					convertFractionInBaseDiez(srcBase,dstBase,&(num_fraccion[0]),&outcome,show);
-					printf("\n De base %d convertido a base %d es .%f",*srcBase,*dstBase,outcome);
+					char buffer[Dig_Fraccion];
+					snprintf(buffer,sizeof buffer,"%f",outcome);
+					printf("\n voy a meter %s al salida",buffer);
+					joinResult(&(buffer[0]),&(salida[lim]),&lim,&isInt);//copnvierto float a char*
 
 				}
 
 			}
+			char arreglo[]={'1','2','3','4','5','6','7','8','9','1','2','3','4','5','6','7','8','9'};
+
+			printf("\nEl valor %s en base %i =es=> %s en base %i",num,*srcBase,salida,*dstBase);
+			for(int i=0;i<16;i++)
+							printf(" %c",salida[i]);
 		}
 		else
 			printf("\nERROR_FAILURE");
@@ -334,7 +351,14 @@ void main(int argc, char* argv[])
 
 		}
 	}
+	int esEntero(char c){
+		int salida;
+		if((c=='0')||(c=='1')||(c=='2')||(c=='3')||(c=='4')||(c=='5')||(c=='6')||(c=='7')||(c=='8')||(c=='9'))
+			return 1;
+		else
+			return 0;
 
+	}
 	/**
 	*convierte un valor numerico en base 10 entre el rango de (2-16) a el mismo valor representado en otra base
 	*src es un puntero a un entero que guarda el valor de la base 10
@@ -363,4 +387,28 @@ void main(int argc, char* argv[])
 							else
 								if(*(value)==15)
 									*(outcome)='F';
+	}
+
+	void joinResult(char* entrada ,char* salida,int* lim,int* isInt){
+		int i=0;
+		if((*isInt)==1){
+			while((*lim)<Dig_Entero && esEntero(*(entrada+(*lim)))==1){
+				*(salida+*(lim))=*(entrada+*(lim));
+				printf("\n el valor que he metido al arreglo es %c en pos : %i",*(salida+(*lim)),*lim);
+				*(lim)=*(lim)+1;
+
+
+			}
+		}
+		else{
+			i=2;
+			while((i)<Dig_Fraccion && esEntero(*(entrada+i))==1){
+				*(salida+i)=*(entrada+i);
+				printf("\n el valor que he metido al arreglo es %c en pos : %i",*(salida+i),*lim);
+				*(lim)=*(lim)+1;
+				i++;
+				printf("\nvoy a impriomir toodo %s",salida);
+			}
+		}
+
 	}
