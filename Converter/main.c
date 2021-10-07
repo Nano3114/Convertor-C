@@ -61,42 +61,7 @@ int valorBase10(char n){
 
 
 
-/*
-    Convierte una cadena de caracteres de una base a decimal
-    srcBase puntero a entero base 2-16
-    num puntero a cadena de caracteres correspondiente a la base
-    show puntero a entero
-    Retorna puntero puntero a entero convertido de base pasa por parametro a decimal
-*/
-int* baseADecimal(int* srcBase, char *num,int* show){
-    int i=0;
-    int numDecimal=0;
-    int corte=strlen(num);
-    int poder=corte-1;
-    if (*show==1){
-        printf("%s = ",num);
-    }
-    while (i<corte){ //Mientras haya caracteres en el arreglo de caracteres
-        if (valorBase10(num[i])>=*srcBase){ //Si el numero no pertenece a la base hay un error
-            printf("\nERROR_FAILURE");
-            i=corte;
-        }
-        else{
-            numDecimal+=valorBase10(num[i])*pow(*srcBase,poder); //Metodo de la multiplicacion
-            if (*show==1){ //Si quiere que el usuario lo muestre
-                printf("%d * %d^(%d) +",valorBase10(num[i]),*srcBase,poder);
-            }
-        }
-        poder--;
-        i++;
-    }
-    if (*show==1){
-        printf("\n\n");
-    }
-    int *toReturn= malloc(sizeof(int)); //Es alocal manualmente la memoria del puntero porque sino se pierda al terminar la funcion
-    *toReturn=numDecimal;
-    return toReturn;
-}
+
 
 
 
@@ -108,18 +73,24 @@ int* baseADecimal(int* srcBase, char *num,int* show){
 	*  outcome es un puntero al primer lugar de un arreglo de characteres
 	*/
 	void convertFractionInBaseDiez(int* srcBase,int* dstBase,char* fraction,float* outcome,int* show ){
-		int valor;
-		float aux=*outcome;
+		int* valor;
+		float* aux;
+
+		valor=malloc(sizeof(int));
+		aux=malloc(sizeof(float));
+
+		*aux=*outcome;
+
 		if(*fraction!='\n'){
-			valor=valorBase10(*fraction);//valor que respresenta *fraction en ese punto
+			*valor=valorBase10(*fraction);//valor que respresenta *fraction en ese punto
 			if(*(fraction+1)=='\0'){
-				*outcome=(aux+valor)/(*(srcBase));
+				*outcome=(*aux+*valor)/(*(srcBase));
 				if(*show==1)
 					printf("\n(( %f + %i)/%d) = %f",aux,valor,*srcBase,*outcome);
 			}
 			else{
 				convertFractionInBaseDiez(srcBase,dstBase,(fraction+1),outcome,show);
-				*(outcome)=((*outcome)+(valor))/(*srcBase);
+				*(outcome)=((*outcome)+(*valor))/(*srcBase);
 				if(*show==1)
 					printf("\n((%f + %i)/%d) = %f",aux,valor,*srcBase,*outcome);
 			}
@@ -153,6 +124,7 @@ int* baseADecimal(int* srcBase, char *num,int* show){
 
 		}
 	}
+
 	int esEntero(char c){
 		if((c=='0')||(c=='1')||(c=='2')||(c=='3')||(c=='4')||(c=='5')||(c=='6')||(c=='7')||(c=='8')||(c=='9'))
 			return 1;
@@ -243,6 +215,45 @@ int* baseADecimal(int* srcBase, char *num,int* show){
 	}
 	*/
 	/*
+    Convierte una cadena de caracteres de una base a decimal
+    srcBase puntero a entero base 2-16
+    num puntero a cadena de caracteres correspondiente a la base
+    show puntero a entero
+    Retorna puntero puntero a entero convertido de base pasa por parametro a decimal
+
+void baseADecimal(int* srcBase, char *num,int* toReturn,int* show){
+    int* i;
+    int* corte;
+    int* poder
+    i=malloc(sizeof(int));
+    corte=malloc(sizeof(int));
+    *i=0;
+	 *corte=0;
+
+    if (*show==1){
+        printf("%s = ",*num);
+    }
+    while (*(num+(*i))!='\0' && *(corte)!=1){ //Mientras haya caracteres en el arreglo de caracteres
+        if (valorBase10(num[i])>=*srcBase){ //Si el numero no pertenece a la base hay un error
+            printf("\nERROR_FAILURE");
+            *corte=1;
+        }
+        else{
+            *toReturn+=valorBase10(num[*i])*pow(*srcBase,poder); //Metodo de la multiplicacion
+            if (*show==1){ //Si quiere que el usuario lo muestre
+                printf("%d * %d^(%d) +",valorBase10(num[i]),*srcBase,poder);
+            }
+        }
+        poder--;
+        i++;
+    }
+    if (*show==1){
+        printf("\n\n");
+    }
+
+	}
+	*/
+	/*
     Convierte un numero entero en su respectivo en otras bases
     n entero a convertir
     retorna caracter convertido
@@ -316,122 +327,120 @@ int* baseADecimal(int* srcBase, char *num,int* show){
 		}
 	}
 
+
+
 	/**
-	*Convierte el numero num a la base correspondiente
-	*srcBase es un puntero a un valor entero que indica la base origen
-	*dstBase es un puntero a un valor entero que indica la base destino.
-	*num es un puntero al lugar en memoria del primer elemento del arreglo donde se guarda el numero a convertir
-	*show es un puntero a un valor que indica si mostrar o no un breve resuemen de lo que se hace en la funcion
+		DEVUELVE la cadena de characteres con la parte entera de STR
+			str es un puntero al primer elemento de la cadena de character
+			retrun una cadena de characteres donde se teminara la parte entera de la cadena pasada pór parametro
 	*/
-	void convertNumber(int *srcBase,int* dstBase,char* num,int* show){
-		char num_entero[10];
-		char salida[16];
-		char num_fraccion[6];
-		int* pos;int* valueInt;int* posRes;
+	char* getParteEntera(char* str){
+		int* i;
+		int* size;
+		char* parteEntera;
 
-		pos=malloc(sizeof(int));
-		valueInt=malloc(sizeof(int));
-		posRes=malloc(sizeof(int));
+		i=malloc(sizeof(int));
+		size=malloc(sizeof(int));
 
-		*pos=0;
-		*posRes=0;
-		while((*pos)<Dig_Entero && *(num+(*pos))!='.' && *(num+(*pos))!='\0'){
-			num_entero[*pos]=*(num+(*pos));
-			*(pos)=*(pos)+1;
+		*i=0;
+		*size=1;
+		parteEntera=malloc(sizeof(int)*(*size));
+		while(str[*i]!='.' && str[*i]!='\0'){
+			parteEntera=realloc(parteEntera,sizeof(int)*(*size));
+			parteEntera[*i]=str[*i];
+			*(i)=*(i)+1;
+			*(size)=*(size)+1;
 		}
-		if((*pos)<Dig_Entero){//si laparte entera no supero el limite de parte entera(10) avanzo
-			num_entero[*pos]='\0';
-			if(*(num+(*pos))=='\0'	|| *(num+(*pos))=='.'){//independietemente que haya terminado en cualquiera de los dos debo convertir sio si la parte entera
-				if((*srcBase)==10){
-					*valueInt=atoi(&(num_entero[0]));
-					decimalABase(dstBase,valueInt,&(salida[0]),posRes,show);
-				}
-				else{
-
-				}
-			}
-			printf("\nEl valor %s en base %i =es=> %s en base %i",num,*srcBase,salida,*dstBase);
-		}
-		else{
-			printf("\nERROR_FAILURE");
-		}
-		/**
-		int size=0,cantDigFraccion=0   ,valorEntero=0 ,lim=0, isInt=1;
-		while(size<Dig_Entero && *(num+size)!='.' && *(num+size)!='\0'){
-			num_entero[size]=*(num+size);
-			size++;
-		}
-		num_entero[size]='\0';
-		*/
-		/**
-		if(*(num+size)=='\0'	|| *(num+size)=='.'){
-			//Empiezo convirtiendo la parte entera independientemente de que halla o no parte fracionaria
-			if(*(srcBase)==10){
-				valorEntero=atoi(&(num_entero[0]));
-            char* numConvertido = decimalABase(dstBase,&valorEntero,show);
-				joinResult(numConvertido,&salida[lim],&lim,&isInt);
-				isInt=0;
-            //printf("\nEn base %d convertido a base %d es %s",*srcBase,*dstBase,numConvertido);
-			}
-			else{
-            int* test = baseADecimal(srcBase,&(num_entero[0]),show);
-            printf("\nVoy a meter el %i al arreglo al arreglo",*(test));
-            char buffer2[10];
-            itoa(*test,buffer2,10);
-				joinResult(&buffer2[0],&(salida[lim]),&lim,&isInt);
-				isInt=0;
-			}
-
-			printf("\n lo que voy en salida es %s             ",salida);
-
-			if(*(num+size)=='.'){
-				size++;
-				while(*(num+size)!='\0'){
-					num_fraccion[cantDigFraccion]=*(num+size);
-					size++;cantDigFraccion++;
-				}
-				num_fraccion[cantDigFraccion]='\0';
-				if(*(srcBase)==10){
-					int valorEnteroDeFraccion=atoi(&(num_fraccion[0]));
-					double valorDeFraccion=(double)valorEnteroDeFraccion;
-					while(cantDigFraccion!=0){
-						valorDeFraccion=valorDeFraccion/10;
-						cantDigFraccion--;
-					}
-					char* outcome=&(salida[lim]);
-					convertFractionFromBaseDiez(srcBase,dstBase,&valorDeFraccion,outcome,show);
-					joinResult(outcome,&(salida[lim]),&lim,&isInt);
-				}
-				else{
-					float outcome=0;
-					if(*show==1)
-						printf("\nConvierto la fraccion %s de base %i a base %i ,usando el metodo de division",num_fraccion,*srcBase,*dstBase);
-					convertFractionInBaseDiez(srcBase,dstBase,&(num_fraccion[0]),&outcome,show);
-					char buffer[Dig_Fraccion];
-					snprintf(buffer,sizeof buffer,"%f",outcome);
-					printf("\n voy a meter %s al salida",buffer);
-					joinResult(&(buffer[0]),&(salida[lim]),&lim,&isInt);//copnvierto float a char*
-
-				}
-
-			}
-			char arreglo[]={'1','2','3','4','5','6','7','8','9','1','2','3','4','5','6','7','8','9'};
-
-			printf("\nEl valor %s en base %i =es=> %s en base %i",num,*srcBase,salida,*dstBase);
-			for(int i=0;i<16;i++)
-							printf(" %c",salida[i]);
-		}
-		else
-			printf("\nERROR_FAILURE");
-	*/
+		parteEntera[*i]='\0';
+		free(i);
+		free(size);
+		return parteEntera;
 	}
 
-	void main(int argc, char* argv[]){
+	/**
+	limpia los ceros que no tienen significancia en la parte fraccionaria
+		dec es un puntero de la cadena de caracteres de la parte decimal a limpiar.
+	*/
+	void limpPartDec(char* dec){
+		int* i;int* j;
+		i=malloc(sizeof(int));j=malloc(sizeof(int));
+		*i=0;
+		while(dec[*i]!='\0'){
+			*i=*(i)+1;
+			if(dec[*i]=='0'){
+				*j=*i;
+				while(dec[*i]=='0' && dec[*i]!='\0'){
+					*i=*(i)+1;
+				}
+				if(dec[*i]=='\0')
+					dec[*j]='\0';
+			}
+		}
+	}
+	/**
+			DEVUELVE la cadena DE CHARACTERES con la parte decimal dentro de str
+			str es un puntero al primer elemento de la cadena de character donde se almacena el num
+			retrun una cadena de characteres donde se teminara la parte decimal de la cadena pasada pór parametro
+	*/
+	char* getParteDecimal(char* str){
+		int* i;
+		int* j;
+		int* size;
+		char* parteDecimal;
+
+		i=malloc(sizeof(int));
+		j=malloc(sizeof(int));
+		size=malloc(sizeof(int));
+		parteDecimal=malloc(sizeof(char)*(*size));
+		*i=0;
+		*j=0;
+		*size=1;
+
+
+		while(str[*i]!='.' && str[*i]!='\0'){
+			printf("\n en parte decimal voy por el %c :",str[*i]);
+			*(i)=*(i)+1;
+		}
+		if(str[*i]=='.'){
+			*(i)=*(i)+1;
+			while(str[*i]!='\0'){
+				parteDecimal=realloc(parteDecimal,sizeof(char)*(*size));
+				parteDecimal[*j]=str[*i];
+				*(i)=*(i)+1;
+				*(j)=*(j)+1;
+				*(size)=*(size)+1;
+			}
+			parteDecimal[*j]='\0';
+		}
+		else{
+			parteDecimal=NULL;
+		}
+		free(i);free(j);free(size);
+		limpPartDec(parteDecimal);
+		return parteDecimal;
+	}
+
+
+
+	/**
+		*Convierte el numero num a la base correspondiente
+		*srcBase es un puntero a un valor entero que indica la base origen
+		*dstBase es un puntero a un valor entero que indica la base destino.
+		*num es un puntero al lugar en memoria del primer elemento del arreglo donde se guarda el numero a convertir
+		*show es un puntero a un valor que indica si mostrar o no un breve resuemen de lo que se hace en la funcion
+	*/
+	void convertNumber(int *srcBase,int* dstBase,char* num,int* show){
+		printf("\nla parte entera es :%s ",getParteEntera(num));
+		//convierto la parte fraccion
+		printf("la parte decimal es %s ",getParteDecimal(num));
+
+	}
+
+	int main(int argc, char* argv[]){
 		char* num;
 		int* srcBase;int* dstBase;int* show;int* help;int* i;
 		char cmd[5][2]={{'-','n'},{'-','s'},{'-','d'},{'-','v'},{'-','h'}};
-
-		num=malloc(sizeof(int)*16);
+		num=malloc(sizeof(char)*16);
 		srcBase=malloc(sizeof(int));
 		dstBase=malloc(sizeof(int));
 		show=malloc(sizeof(int));
@@ -491,4 +500,12 @@ int* baseADecimal(int* srcBase, char *num,int* show){
 				convertNumber(srcBase,dstBase,num,show);
         }
 		}
+				free(num);
+				free(srcBase);
+				free(dstBase);
+				free(show);
+				free(help);
+				free(i);
+				free(num);
+		return 1;
 	}
